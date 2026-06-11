@@ -3,8 +3,7 @@
 import dynamic from "next/dynamic";
 import { events } from "@/data/events";
 import { useMapContext } from "@/context/MapContext";
-import { useState } from "react";
-
+import { useRef, useState } from "react";
 
 const BangkokMap = dynamic(
   () => import("@/components/Map"),
@@ -37,6 +36,7 @@ const hotspots = [
 
 export default function Home() {
 
+  const mapSectionRef = useRef<HTMLDivElement>(null);
   const { setSelectedPosition } = useMapContext();
   const [search, setSearch] = useState("");
   const [selectedDate, setSelectedDate] = useState("");
@@ -225,7 +225,7 @@ export default function Home() {
                   : "bg-slate-800"
                   }`}
               >
-                 ทั้งหมด ({totalCount})
+                ทั้งหมด ({totalCount})
               </button>
 
               <button
@@ -270,18 +270,23 @@ export default function Home() {
             <p className="mb-4 text-sm text-slate-400">
               พบ {filteredEventsDate.length} งาน
             </p>
-           <div className="max-h-[750px] overflow-y-auto space-y-3">
+            <div className="max-h-[750px] overflow-y-auto space-y-3">
 
               {filteredEventsDate.map((event) => (
                 <div
                   key={event.id}
                   className="cursor-pointer rounded-xl border border-slate-700 p-4 transition hover:border-blue-500"
-                  onClick={() =>
+                  onClick={() => {
                     setSelectedPosition({
                       lat: event.lat,
                       lng: event.lng,
-                    })
-                  }
+                    });
+
+                    mapSectionRef.current?.scrollIntoView({
+                      behavior: "smooth",
+                      block: "start",
+                    });
+                  }}
                 >
                   <div className="font-semibold">
                     {event.title}
@@ -328,7 +333,7 @@ export default function Home() {
         </div>
 
         {/* Map */}
-        <div className="lg:col-span-2 sticky top-4 h-fit">
+        <div ref={mapSectionRef} className="lg:col-span-2 sticky top-4 h-fit">
           <div className="rounded-2xl border border-slate-800 bg-slate-900 p-5">
             <div className="mb-4 flex items-center justify-between">
               <h3 className="text-xl font-semibold">
